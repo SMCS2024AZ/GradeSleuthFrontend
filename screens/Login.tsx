@@ -26,7 +26,7 @@ const Login = () => {
     const [districtList, setDistrictList] = useState([
         {label: "Montgomery County Public Schools", value: "Montgomery County Public Schools"},
         {label: "Other School District", value: "Other School District"}
-      ]);
+    ]);
 
     // Load fonts
     const [fontLoaded, setFontLoaded] = useState(false);
@@ -74,7 +74,7 @@ const Login = () => {
             <Modal
                 isVisible={showDistrictSelection}
                 hasBackdrop={true}
-                backdropColor={"black"}
+                backdropColor="black"
                 backdropOpacity={0.75}
             >
                 <View style={styles.centeredView}>

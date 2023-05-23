@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import * as Progress from "react-native-progress";
 import Modal from "react-native-modal";
 import { useNavigation } from "@react-navigation/native";
@@ -96,9 +96,6 @@ const Assignments = () => {
     // Navigation
     const navigation = useNavigation();
 
-    // Modal
-    const [showAssignmentModal, setShowAssignmentModal] = useState(false);
-
     // Load fonts
     const [fontLoaded, setFontLoaded] = useState(false);
 
@@ -123,7 +120,7 @@ const Assignments = () => {
     }
 
     // List of assignments
-    const [assignmentList, setAssignmentList] = useState([
+    const assignmentList = [
         { assignmentName: "Assignment Uno", category: "All Tasks / Assessments", score: 17, maxScore: 19 },
         { assignmentName: "Assignment Dos", category: "All Tasks / Assessments", score: 2, maxScore: 5 },
         { assignmentName: "Assignment Tres", category: "Practice / Preparation", score: 10, maxScore: 10 },
@@ -132,7 +129,7 @@ const Assignments = () => {
         { assignmentName: "Assignment Seis", category: "Practice / Preparation", score: 9, maxScore: 15 },
         { assignmentName: "Assignment Siete", category: "All Tasks / Assessments", score: 30, maxScore: 40 },
         { assignmentName: "Assignment Ocho", category: "Practice / Preparation", score: 20, maxScore: 25 },
-    ]);
+    ]
 
     // Grade data
     var overallGradeLetter = "";
@@ -214,27 +211,9 @@ const Assignments = () => {
                                 <Text style={[styles.circlesScore, selectColor(practicePrepGradePercentage)]}>{practicePrepScore} / {practicePrepMaxScore}</Text>
                             </View>
                         </View>
-                        <Modal
-                            isVisible={showAssignmentModal}
-                            hasBackdrop={true}
-                            backdropColor="black"
-                            backdropOpacity={0.75}
-                        >
-                            <View style={styles.centeredView}>
-                                <Text>Assignment Name</Text>
-                                <View style={styles.assignmentNameInput}>
-                                    <TextInput
-                                        style={styles.TextInput}
-                                        value={"New Assignment"}
-                                        //onChangeText={(zipcode) => setZipcode(zipcode)}
-                                    />
-                                </View>
-                            </View>
-                        </Modal>
-
                         <View style={styles.assignmentsTitleContainer}>
                             <Text style={styles.assignmentsTitle}>Assignments</Text>
-                            <TouchableOpacity style={styles.addAssignment} onPress={() => setShowAssignmentModal(true)}>
+                            <TouchableOpacity style={styles.addAssignment}>
                                 <Text style={styles.addAssignmentText}>Add</Text>
                             </TouchableOpacity>
                         </View>
@@ -312,18 +291,6 @@ const styles = StyleSheet.create({
         fontFamily: "Roboto_400Regular",
         fontSize: 14,
         color: "#EEEFF0"
-    },
-    centeredView: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        marginVertical: 200
-    },
-    assignmentNameInput: {
-
-    },
-    TextInput: {
-
     },
     assignmentsTitleContainer: {
         flexDirection: "row",
