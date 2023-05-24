@@ -74,7 +74,7 @@ const Login = () => {
             <Modal
                 isVisible={showDistrictSelection}
                 hasBackdrop={true}
-                backdropColor="black"
+                backdropColor="white"
                 backdropOpacity={0.75}
             >
                 <View style={styles.centeredView}>
@@ -105,6 +105,7 @@ const Login = () => {
                                 borderColor: "#191C23"
                             }}
                             textStyle={{
+                                fontFamily: "Roboto_400Regular",
                                 color: "#EEEFF0"
                             }}
                             dropDownContainerStyle={{
@@ -113,9 +114,6 @@ const Login = () => {
                                 borderBottomColor: "#191C23",
                                 borderLeftColor: "#191C23",
                                 borderRightColor: "#191C23"
-                            }}
-                            listItemLabelStyle={{
-                                marginTop: 6
                             }}
                         />
                         <TouchableOpacity style={[styles.closeDistrictSelectionButton]} onPress={() => setShowDistrictSelection(false)}>

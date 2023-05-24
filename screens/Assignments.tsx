@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput } from "react-native";
 import * as Progress from "react-native-progress";
+import DropDownPicker from "react-native-dropdown-picker";
 import Modal from "react-native-modal";
 import { useNavigation } from "@react-navigation/native";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { Roboto_400Regular, Roboto_700Bold } from "@expo-google-fonts/roboto";
+import { Ionicons } from "@expo/vector-icons"; 
 
 SplashScreen.preventAutoHideAsync();
 
@@ -96,8 +98,45 @@ const Assignments = () => {
     // Navigation
     const navigation = useNavigation();
 
-    // Modal
+    // Assignments list
+    const [assignmentList, setAssignmentList] = useState([
+        { assignmentName: "Assignment Uno", category: "All Tasks / Assessments", score: 17, maxScore: 19 },
+        { assignmentName: "Assignment Dos", category: "All Tasks / Assessments", score: 2, maxScore: 5 },
+        { assignmentName: "Assignment Tres", category: "Practice / Preparation", score: 10, maxScore: 10 },
+        { assignmentName: "Assignment Cuatro", category: "All Tasks / Assessments", score: 18, maxScore: 20 },
+        { assignmentName: "Assignment Cinco", category: "All Tasks / Assessments", score: 31, maxScore: 32 },
+        { assignmentName: "Assignment Seis", category: "Practice / Preparation", score: 9, maxScore: 15 },
+        { assignmentName: "Assignment Siete", category: "All Tasks / Assessments", score: 30, maxScore: 40 },
+        { assignmentName: "Assignment Ocho", category: "Practice / Preparation", score: 20, maxScore: 25 },
+    ]);
+
+    // Add Assignment Modal
     const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+    const [assignmentName, setAssignmentName] = useState("New Assignment");
+    const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+    const [category, setCategory] = useState("All Tasks / Assessments");
+    const [categoryList, setCategoryList] = useState([
+        {label: "All Tasks / Assessments", value: "All Tasks / Assessments"},
+        {label: "Practice / Preparation", value: "Practice / Preparation"}
+    ]);
+    const [assignmentScore, setAssignmentScore] = useState("0");
+    const [assignmentMaxScore, setAssignmentMaxScore] = useState("0");
+
+    function addAssignment(assignmentName, category, score, maxScore) {
+        setAssignmentList(prev => {
+            return [
+                {
+                    assignmentName: assignmentName,
+                    category: category,
+                    score: parseInt(score),
+                    maxScore: parseInt(maxScore)
+                },
+                ...prev
+            ];
+        });
+
+        setShowAssignmentModal(false);
+    }
 
     // Load fonts
     const [fontLoaded, setFontLoaded] = useState(false);
@@ -121,18 +160,6 @@ const Assignments = () => {
     if (!fontLoaded) {
         return null;
     }
-
-    // List of assignments
-    const [assignmentList, setAssignmentList] = useState([
-        { assignmentName: "Assignment Uno", category: "All Tasks / Assessments", score: 17, maxScore: 19 },
-        { assignmentName: "Assignment Dos", category: "All Tasks / Assessments", score: 2, maxScore: 5 },
-        { assignmentName: "Assignment Tres", category: "Practice / Preparation", score: 10, maxScore: 10 },
-        { assignmentName: "Assignment Cuatro", category: "All Tasks / Assessments", score: 18, maxScore: 20 },
-        { assignmentName: "Assignment Cinco", category: "All Tasks / Assessments", score: 31, maxScore: 32 },
-        { assignmentName: "Assignment Seis", category: "Practice / Preparation", score: 9, maxScore: 15 },
-        { assignmentName: "Assignment Siete", category: "All Tasks / Assessments", score: 30, maxScore: 40 },
-        { assignmentName: "Assignment Ocho", category: "Practice / Preparation", score: 20, maxScore: 25 },
-    ]);
 
     // Grade data
     var overallGradeLetter = "";
@@ -217,24 +244,97 @@ const Assignments = () => {
                         <Modal
                             isVisible={showAssignmentModal}
                             hasBackdrop={true}
-                            backdropColor="black"
+                            backdropColor="white"
                             backdropOpacity={0.75}
                         >
                             <View style={styles.centeredView}>
-                                <Text>Assignment Name</Text>
-                                <View style={styles.assignmentNameInput}>
-                                    <TextInput
-                                        style={styles.TextInput}
-                                        value={"New Assignment"}
-                                        //onChangeText={(zipcode) => setZipcode(zipcode)}
+                                <View style={styles.assignmentNameContainer}>
+                                    <Text style={styles.modalSectionTitle}>Assignment Name</Text>
+                                    <View style={styles.assignmentNameInput}>
+                                        <TextInput
+                                            style={styles.TextInput}
+                                            value={assignmentName}
+                                            onChangeText={(assignmentName) => setAssignmentName(assignmentName)}
+                                        />
+                                    </View>
+                                </View>
+                                <View style={styles.categoryContainer}>
+                                    <Text style={styles.modalSectionTitle}>Category</Text>
+                                    <DropDownPicker
+                                            open={categoryDropdownOpen}
+                                            value={category}
+                                            items={categoryList}
+                                            setOpen={setCategoryDropdownOpen}
+                                            setValue={setCategory}
+                                            setItems={setCategoryList}
+                                            theme="DARK"
+                                            style={{
+                                                backgroundColor: "#191C23",
+                                                borderColor: "#191C23",
+                                                width: "100%",
+                                                minHeight: 35
+                                            }}
+                                            textStyle={{
+                                                fontFamily: "Roboto_400Regular",
+                                                color: "#EEEFF0"
+                                            }}
+                                            dropDownContainerStyle={{
+                                                backgroundColor: "#191C23",
+                                                borderTopColor: "#657195",
+                                                borderBottomColor: "#191C23",
+                                                borderLeftColor: "#191C23",
+                                                borderRightColor: "#191C23",
+                                                width: "100%",
+                                            }}
+                                            listItemContainerStyle={{
+                                                height: 35
+                                            }}
                                     />
+                                </View>
+                                <View style={styles.scoreContainer}>
+                                    <Text style={styles.modalSectionTitle}>Score</Text>
+                                    <View style={styles.scoreNumbers}>
+                                        <View style={styles.score}>
+                                            <TextInput
+                                                style={styles.TextInput}
+                                                keyboardType="numeric"
+                                                value={assignmentScore}
+                                                onChangeText={(assignmentScore) => setAssignmentScore(assignmentScore)}
+                                            />
+                                        </View>
+                                        <Text style={styles.slash}> / </Text>
+                                        <View style={styles.maxScore}>
+                                            <TextInput
+                                                style={styles.TextInput}
+                                                keyboardType="numeric"
+                                                value={assignmentMaxScore}
+                                                onChangeText={(assignmentMaxScore) => setAssignmentMaxScore(assignmentMaxScore)}
+                                            />
+                                        </View>
+                                    </View>
+                                </View>
+                                <View style={styles.buttonContainer}>
+                                    <View style={styles.exitContainer}>
+                                        <TouchableOpacity style={styles.cancelButton} onPress={() => setShowAssignmentModal(false)}>
+                                            <Text style={styles.buttonText}>Cancel</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.doneButton} onPress={() => addAssignment(assignmentName, category, assignmentScore, assignmentMaxScore)}>
+                                            <Text style={styles.buttonText}>Done</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
                         </Modal>
 
                         <View style={styles.assignmentsTitleContainer}>
                             <Text style={styles.assignmentsTitle}>Assignments</Text>
-                            <TouchableOpacity style={styles.addAssignment} onPress={() => setShowAssignmentModal(true)}>
+                            <TouchableOpacity style={styles.addAssignment} onPress={() => {
+                                setAssignmentName("New Assignment")
+                                setCategory("All Tasks / Assessments")
+                                setAssignmentScore("0");
+                                setAssignmentMaxScore("0");
+                                setShowAssignmentModal(true);
+                            }}>
                                 <Text style={styles.addAssignmentText}>Add</Text>
                             </TouchableOpacity>
                         </View>
@@ -315,15 +415,103 @@ const styles = StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
-        marginVertical: 200
+        marginVertical: 170,
+        backgroundColor: "#000513",
+        paddingLeft: "5%",
+        borderRadius: 15,
+    },
+    assignmentNameContainer: {
+        width: "95%",
+        marginBottom: 10
+    },
+    modalSectionTitle: {
+        color: "#EEEFF0",
+        fontFamily: "Roboto_700Bold",
+        fontSize: 16,
+        marginBottom: 5
     },
     assignmentNameInput: {
-
+        backgroundColor: "#191C23",
+        borderRadius: 5,
+        width: "100%",
+        height: 35
+    },
+    categoryContainer: {
+        zIndex: 2000,
+        width: "95%",
+        marginBottom: 10
+    },
+    scoreContainer: {
+        zIndex: 1000,
+        width: "95%",
+        marginBottom: 14
+    },
+    scoreNumbers: {
+        flexDirection: "row",
+        alignItems: "center"
+    },
+    score: {
+        backgroundColor: "#191C23",
+        borderRadius: 5,
+        width: 45,
+        height: 35
+    },
+    slash: {
+        fontFamily: "Roboto_400Regular",
+        fontSize: 20,
+        color: "#EEEFF0"
+    },
+    maxScore: {
+        backgroundColor: "#191C23",
+        borderRadius: 5,
+        width: 45,
+        height: 35
     },
     TextInput: {
-
+        height: 50,
+        flex: 1,
+        padding: 10,
+        fontFamily: "Roboto_400Regular",
+        color: "#EEEFF0"
+    },
+    buttonContainer: {
+        width: "95%",
+        flexDirection: "row",
+        justifyContent: "flex-end"
+    },
+    deleteButton: {
+        borderRadius: 5,
+        width: 45,
+        backgroundColor: "#1C52D9",
+        height: 40,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    buttonText: {
+        fontFamily: "Roboto_700Bold",
+        color: "#EEEFF0"
+    },
+    exitContainer: {
+        flexDirection: "row"
+    },
+    cancelButton: {
+        borderRadius: 5,
+        backgroundColor: "#1C52D9",
+        width: 70,
+        height: 40,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    doneButton: {
+        borderRadius: 5,
+        backgroundColor: "#1C52D9",
+        width: 70,
+        height: 40,
+        alignItems: "center",
+        justifyContent: "center",
+        marginLeft: 5
     },
     assignmentsTitleContainer: {
         flexDirection: "row",
@@ -363,7 +551,8 @@ const styles = StyleSheet.create({
     infoContainer: {
         justifyContent: "center",
         alignContent: "center",
-        width: "60%",
+        width: "50%",
+        marginHorizontal: 10
     },
     assignmentName: {
         fontFamily: "Roboto_400Regular",
@@ -379,8 +568,9 @@ const styles = StyleSheet.create({
     },
     gradeContainer: {
         justifyContent: "center",
-        alignItems: "flex-start",
-        width: "25%"
+        alignItems: "center",
+        width: "25%",
+        marginRight: 10
     },
     gradePoints: {
         fontFamily: "Roboto_400Regular",
@@ -389,8 +579,7 @@ const styles = StyleSheet.create({
         textAlign: "center"
     },
     percentageContainer: {
-        justifyContent: "center",
-        alignItems: "flex-start",
+        justifyContent: "center"
     },
     gradePercentage: {
         fontFamily: "Roboto_700Bold",
