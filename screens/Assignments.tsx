@@ -11,17 +11,6 @@ import { Ionicons } from "@expo/vector-icons";
 
 SplashScreen.preventAutoHideAsync();
 
-type AssignmentType = {
-    assignmentName: string,
-    category: string,
-    score: number,
-    maxScore: number
-}
-
-type AssignmentProps = {
-    data: AssignmentType
-};
-
 function getGradeLetter(gradePercentage) {
     switch (true) {
         case gradePercentage >= 90:
@@ -60,7 +49,7 @@ function selectColorString(gradePercentage) {
             return "#4246FF";
         case gradePercentage >= 70:
             return "#FFFF00";
-        case gradePercentage >= 60:
+        case gradePercentage >= 60: 
             return "#FF5A00";
         case gradePercentage < 60:
             return "#FF0000";
@@ -74,25 +63,6 @@ function selectCategoryColor(category) {
         return styles.practicePrepColor;
     }
 }
-
-const Assignment = (props: AssignmentProps) => {
-    const gradePercentage = Math.round((props.data.score / props.data.maxScore) * 100);
-
-    return (
-        <TouchableOpacity style={styles.assignmentContainer}>
-            <View style={styles.infoContainer}>
-                <Text style={styles.assignmentName}>{props.data.assignmentName}</Text>
-                <Text style={[styles.category, selectCategoryColor(props.data.category)]}>{props.data.category}</Text>
-            </View>
-            <View style={styles.gradeContainer}>
-                <Text style={[styles.gradePoints, selectColor(gradePercentage)]}>{props.data.score}  /  {props.data.maxScore}</Text>
-            </View>
-            <View style={styles.percentageContainer}>
-                <Text style={[styles.gradePercentage, selectColor(gradePercentage)]}>{gradePercentage}%</Text>
-            </View>
-        </TouchableOpacity>
-    );
-};
 
 const Assignments = () => {
     // Navigation
@@ -111,7 +81,7 @@ const Assignments = () => {
     ]);
 
     // Add Assignment Modal
-    const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+    const [showAddAssignmentsModal, setShowAddAssignmentsModal] = useState(false);
     const [assignmentName, setAssignmentName] = useState("New Assignment");
     const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
     const [category, setCategory] = useState("All Tasks / Assessments");
@@ -135,8 +105,77 @@ const Assignments = () => {
             ];
         });
 
-        setShowAssignmentModal(false);
+        setShowAddAssignmentsModal(false);
     }
+
+    // Edit/Delete Assignment Modal
+    const [showEditAssignmentsModal, setShowEditAssignmentsModal] = useState(false);
+    const [editAssignmentIndex, setEditAssignmentIndex] = useState(0);
+    const [editAssignmentName, setEditAssignmentName] = useState("");
+    const [editCategoryDropdownOpen, setEditCategoryDropdownOpen] = useState(false);
+    const [editCategory, setEditCategory] = useState("");
+    const [editCategoryList, setEditCategoryList] = useState([
+        {label: "All Tasks / Assessments", value: "All Tasks / Assessments"},
+        {label: "Practice / Preparation", value: "Practice / Preparation"}
+    ]);
+    const [editAssignmentScore, setEditAssignmentScore] = useState("");
+    const [editAssignmentMaxScore, setEditAssignmentMaxScore] = useState("");
+
+    function editAssignment(index, assignmentName, category, score, maxScore) {
+        const newAssignments = assignmentList.slice();
+        newAssignments[index] = {
+            assignmentName: assignmentName,
+                    category: category,
+                    score: parseInt(score),
+                    maxScore: parseInt(maxScore)
+        };
+        setAssignmentList(newAssignments);
+        setShowEditAssignmentsModal(false);
+    }
+
+    function deleteAssignment(index) {
+        assignmentList.splice(index, 1);
+        setShowEditAssignmentsModal(false);
+    }
+
+    // Assignment Component
+    type AssignmentType = {
+        assignmentName: string,
+        category: string,
+        score: number,
+        maxScore: number
+    }
+    
+    type AssignmentProps = {
+        data: AssignmentType,
+        index: number
+    };
+    
+    const Assignment = (props: AssignmentProps) => {
+        const gradePercentage = Math.round((props.data.score / props.data.maxScore) * 100);
+    
+        return (
+            <TouchableOpacity style={styles.assignmentContainer} onPress={() => {
+                setEditAssignmentIndex(props.index);
+                setEditAssignmentName(props.data.assignmentName);
+                setEditCategory(props.data.category);
+                setEditAssignmentScore(props.data.score.toString());
+                setEditAssignmentMaxScore(props.data.maxScore.toString());
+                setShowEditAssignmentsModal(true);
+            }}>
+                <View style={styles.infoContainer}>
+                    <Text style={styles.assignmentName}>{props.data.assignmentName}</Text>
+                    <Text style={[styles.category, selectCategoryColor(props.data.category)]}>{props.data.category}</Text>
+                </View>
+                <View style={styles.gradeContainer}>
+                    <Text style={[styles.gradePoints, selectColor(gradePercentage)]}>{props.data.score}  /  {props.data.maxScore}</Text>
+                </View>
+                <View style={styles.percentageContainer}>
+                    <Text style={[styles.gradePercentage, selectColor(gradePercentage)]}>{gradePercentage}%</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    };
 
     // Load fonts
     const [fontLoaded, setFontLoaded] = useState(false);
@@ -242,7 +281,7 @@ const Assignments = () => {
                             </View>
                         </View>
                         <Modal
-                            isVisible={showAssignmentModal}
+                            isVisible={showAddAssignmentsModal}
                             hasBackdrop={true}
                             backdropColor="white"
                             backdropOpacity={0.75}
@@ -315,10 +354,102 @@ const Assignments = () => {
                                 </View>
                                 <View style={styles.buttonContainer}>
                                     <View style={styles.exitContainer}>
-                                        <TouchableOpacity style={styles.cancelButton} onPress={() => setShowAssignmentModal(false)}>
+                                        <TouchableOpacity style={styles.cancelButton} onPress={() => setShowAddAssignmentsModal(false)}>
                                             <Text style={styles.buttonText}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity style={styles.doneButton} onPress={() => addAssignment(assignmentName, category, assignmentScore, assignmentMaxScore)}>
+                                            <Text style={styles.buttonText}>Done</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                        </Modal>
+                        
+                        <Modal
+                            isVisible={showEditAssignmentsModal}
+                            hasBackdrop={true}
+                            backdropColor="white"
+                            backdropOpacity={0.75}
+                        >
+                            <View style={styles.centeredView}>
+                                <View style={styles.assignmentNameContainer}>
+                                    <Text style={styles.modalSectionTitle}>Assignment Name</Text>
+                                    <View style={styles.assignmentNameInput}>
+                                        <TextInput
+                                            style={styles.TextInput}
+                                            value={editAssignmentName}
+                                            onChangeText={(editAssignmentName) => setEditAssignmentName(editAssignmentName)}
+                                        />
+                                    </View>
+                                </View>
+                                <View style={styles.categoryContainer}>
+                                    <Text style={styles.modalSectionTitle}>Category</Text>
+                                    <DropDownPicker
+                                        open={editCategoryDropdownOpen}
+                                        value={editCategory}
+                                        items={editCategoryList}
+                                        setOpen={setEditCategoryDropdownOpen}
+                                        setValue={setEditCategory}
+                                        setItems={setEditCategoryList}
+                                        theme="DARK"
+                                        style={{
+                                            backgroundColor: "#191C23",
+                                            borderColor: "#191C23",
+                                            width: "100%",
+                                            minHeight: 35
+                                        }}
+                                        textStyle={{
+                                            fontFamily: "Roboto_400Regular",
+                                            color: "#EEEFF0"
+                                        }}
+                                        dropDownContainerStyle={{
+                                            backgroundColor: "#191C23",
+                                            borderTopColor: "#657195",
+                                            borderBottomColor: "#191C23",
+                                            borderLeftColor: "#191C23",
+                                            borderRightColor: "#191C23",
+                                            width: "100%",
+                                        }}
+                                        listItemContainerStyle={{
+                                            height: 35
+                                        }}
+                                    />
+                                </View>
+                                <View style={styles.scoreContainer}>
+                                    <Text style={styles.modalSectionTitle}>Score</Text>
+                                    <View style={styles.scoreNumbers}>
+                                        <View style={styles.score}>
+                                            <TextInput
+                                                style={styles.TextInput}
+                                                keyboardType="numeric"
+                                                value={editAssignmentScore}
+                                                onChangeText={(editAssignmentScore) => setEditAssignmentScore(editAssignmentScore)}
+                                            />
+                                        </View>
+                                        <Text style={styles.slash}> / </Text>
+                                        <View style={styles.maxScore}>
+                                            <TextInput
+                                                style={styles.TextInput}
+                                                keyboardType="numeric"
+                                                value={editAssignmentMaxScore}
+                                                onChangeText={(editAssignmentMaxScore) => setEditAssignmentMaxScore(editAssignmentMaxScore)}
+                                            />
+                                        </View>
+                                    </View>
+                                </View>
+                                <View style={styles.buttonContainerEdit}>
+                                    <View>
+                                        <TouchableOpacity style={styles.deleteButton} onPress={() => {
+                                            deleteAssignment(editAssignmentIndex);
+                                        }}>
+                                            <Ionicons name="ios-trash-sharp" size={24} color="#EEEFF0" />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={styles.exitContainer}>
+                                        <TouchableOpacity style={styles.cancelButton} onPress={() => setShowEditAssignmentsModal(false)}>
+                                            <Text style={styles.buttonText}>Cancel</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.doneButton} onPress={() => editAssignment(editAssignmentIndex, editAssignmentName, editCategory, editAssignmentScore, editAssignmentMaxScore)}>
                                             <Text style={styles.buttonText}>Done</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -333,7 +464,7 @@ const Assignments = () => {
                                 setCategory("All Tasks / Assessments")
                                 setAssignmentScore("0");
                                 setAssignmentMaxScore("0");
-                                setShowAssignmentModal(true);
+                                setShowAddAssignmentsModal(true);
                             }}>
                                 <Text style={styles.addAssignmentText}>Add</Text>
                             </TouchableOpacity>
@@ -341,7 +472,7 @@ const Assignments = () => {
                     </>
                 }
                 data={assignmentList}
-                renderItem={({ item, index }) => <Assignment data={item} />}
+                renderItem={({ item, index }) => <Assignment data={item} index={index} />}
             />
         </View>
     );
@@ -480,6 +611,11 @@ const styles = StyleSheet.create({
         width: "95%",
         flexDirection: "row",
         justifyContent: "flex-end"
+    },
+    buttonContainerEdit: {
+        width: "95%",
+        flexDirection: "row",
+        justifyContent: "space-between"
     },
     deleteButton: {
         borderRadius: 5,
